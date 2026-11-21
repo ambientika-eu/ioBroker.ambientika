@@ -1,0 +1,63 @@
+{
+  "name": "iobroker.ambientika",
+  "version": "2.0.0",
+  "description": "ioBroker adapter for Ambientika ventilation units with heat recovery",
+  "author": {
+    "name": "Südwind GmbH",
+    "email": "info@ambientika.eu"
+  },
+  "homepage": "https://github.com/ambientika-eu/ioBroker.ambientika",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "Ambientika",
+    "ventilation",
+    "heat recovery",
+    "Lüftung",
+    "Smart Home",
+    "home automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ambientika-eu/ioBroker.ambientika.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.4.3",
+    "mqtt": "^5.16.1"
+  },
+  "devDependencies": {
+    "@alcalzone/release-script": "^5.2.1",
+    "@alcalzone/release-script-plugin-iobroker": "^5.2.0",
+    "@alcalzone/release-script-plugin-license": "^5.2.2",
+    "@alcalzone/release-script-plugin-manual-review": "^5.2.0",
+    "@iobroker/adapter-dev": "^1.5.0",
+    "@iobroker/eslint-config": "^2.3.4",
+    "@iobroker/testing": "^6.3.2",
+    "aedes": "^0.51.3"
+  },
+  "main": "main.js",
+  "files": [
+    "admin/",
+    "lib/",
+    "main.js",
+    "io-package.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test:unit": "mocha --config test/mocharc.custom.json \"test/unit/**/*.test.js\"",
+    "test:package": "mocha test/package.test.js --exit",
+    "test:integration": "mocha test/integration.test.js test/integration-mqtt.test.js --exit",
+    "test": "npm run test:unit && npm run test:package",
+    "lint": "eslint -c eslint.config.mjs .",
+    "translate": "translate-adapter",
+    "release": "release-script"
+  },
+  "bugs": {
+    "url": "https://github.com/ambientika-eu/ioBroker.ambientika/issues"
+  },
+  "readmeFilename": "README.md"
+}

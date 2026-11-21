@@ -1,0 +1,19 @@
+{
+    "Sign in with the e-mail address and the password of your Ambientika app. The adapter finds all units of the account on its own.": "请使用 Ambientika 应用的电子邮件地址和密码登录。适配器会自动找到该账户下的所有设备。",
+    "Connection type": "连接方式",
+    "Ambientika cloud (recommended)": "Ambientika 云（推荐）",
+    "Ambientika MQTT Bridge": "Ambientika MQTT Bridge",
+    "E-mail address": "电子邮件地址",
+    "Password": "密码",
+    "Reading interval": "读取间隔",
+    "Seconds between two readings of all units (10 to 3600)": "两次读取全部设备之间的秒数（10 到 3600）",
+    "The adapter reads the topics of the Ambientika MQTT Bridge. Use the same MQTT broker and topic prefix as the bridge.": "适配器读取 Ambientika MQTT Bridge 的主题。请使用与 Bridge 相同的 MQTT 代理和主题前缀。",
+    "MQTT broker host": "MQTT 代理主机",
+    "Port": "端口",
+    "User": "用户",
+    "Use TLS (mqtts)": "使用 TLS (mqtts)",
+    "Accept self-signed certificates": "接受自签名证书",
+    "Topic prefix of the bridge": "Bridge 的主题前缀",
+    "Discovery prefix (unit names)": "Discovery 前缀（设备名称）",
+    "Leave empty if the bridge does not publish Home Assistant discovery": "如果 Bridge 不发布 Home Assistant Discovery，请留空"
+}

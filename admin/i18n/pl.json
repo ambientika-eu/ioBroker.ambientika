@@ -1,0 +1,19 @@
+{
+    "Sign in with the e-mail address and the password of your Ambientika app. The adapter finds all units of the account on its own.": "Zaloguj się adresem e-mail i hasłem aplikacji Ambientika. Adapter sam znajdzie wszystkie urządzenia na koncie.",
+    "Connection type": "Rodzaj połączenia",
+    "Ambientika cloud (recommended)": "Chmura Ambientika (zalecane)",
+    "Ambientika MQTT Bridge": "Ambientika MQTT Bridge",
+    "E-mail address": "Adres e-mail",
+    "Password": "Hasło",
+    "Reading interval": "Odstęp odczytu",
+    "Seconds between two readings of all units (10 to 3600)": "Sekundy między dwoma odczytami wszystkich urządzeń (od 10 do 3600)",
+    "The adapter reads the topics of the Ambientika MQTT Bridge. Use the same MQTT broker and topic prefix as the bridge.": "Adapter odczytuje tematy Ambientika MQTT Bridge. Podaj ten sam broker MQTT i ten sam prefiks tematów co w Bridge.",
+    "MQTT broker host": "Host brokera MQTT",
+    "Port": "Port",
+    "User": "Użytkownik",
+    "Use TLS (mqtts)": "Użyj TLS (mqtts)",
+    "Accept self-signed certificates": "Akceptuj certyfikaty z podpisem własnym",
+    "Topic prefix of the bridge": "Prefiks tematów Bridge",
+    "Discovery prefix (unit names)": "Prefiks Discovery (nazwy urządzeń)",
+    "Leave empty if the bridge does not publish Home Assistant discovery": "Pozostaw puste, jeśli Bridge nie publikuje Home Assistant Discovery"
+}

@@ -1,0 +1,133 @@
+{
+    "common": {
+        "name": "ambientika",
+        "version": "2.0.0",
+        "news": {
+            "2.0.0": {
+                "en": "The adapter reads the units directly from the Ambientika cloud: sign in with the e-mail address and password of the Ambientika app, nothing else to install. The Ambientika MQTT Bridge remains available as a second connection type; existing installations keep running unchanged.",
+                "de": "Der Adapter liest die Geräte direkt aus der Ambientika-Cloud: Anmeldung mit E-Mail-Adresse und Passwort der Ambientika App, sonst ist nichts zu installieren. Die Ambientika MQTT Bridge bleibt als zweite Verbindungsart erhalten; bestehende Installationen laufen unverändert weiter.",
+                "ru": "Адаптер читает устройства напрямую из облака Ambientika: вход с адресом электронной почты и паролем приложения Ambientika, больше ничего устанавливать не нужно. Ambientika MQTT Bridge остаётся вторым типом подключения; существующие установки работают без изменений.",
+                "pt": "O adaptador lê as unidades diretamente da cloud Ambientika: sessão com o e-mail e a palavra-passe da app Ambientika, sem mais nada para instalar. O Ambientika MQTT Bridge mantém-se como segundo tipo de ligação; as instalações existentes continuam a funcionar sem alterações.",
+                "nl": "De adapter leest de units rechtstreeks uit de Ambientika-cloud: aanmelden met het e-mailadres en wachtwoord van de Ambientika-app, verder hoeft niets te worden geïnstalleerd. De Ambientika MQTT Bridge blijft als tweede verbindingstype beschikbaar; bestaande installaties blijven ongewijzigd werken.",
+                "fr": "L'adaptateur lit les appareils directement dans le cloud Ambientika : connexion avec l'adresse e-mail et le mot de passe de l'application Ambientika, rien d'autre à installer. L'Ambientika MQTT Bridge reste disponible comme second type de connexion ; les installations existantes continuent de fonctionner sans changement.",
+                "it": "L'adattatore legge gli apparecchi direttamente dal cloud Ambientika: accesso con indirizzo e-mail e password dell'app Ambientika, nient'altro da installare. L'Ambientika MQTT Bridge resta disponibile come secondo tipo di connessione; le installazioni esistenti continuano a funzionare senza modifiche.",
+                "es": "El adaptador lee los equipos directamente de la nube de Ambientika: inicio de sesión con el correo electrónico y la contraseña de la app Ambientika, sin nada más que instalar. El Ambientika MQTT Bridge sigue disponible como segundo tipo de conexión; las instalaciones existentes siguen funcionando sin cambios.",
+                "pl": "Adapter odczytuje urządzenia bezpośrednio z chmury Ambientika: logowanie adresem e-mail i hasłem aplikacji Ambientika, nic więcej nie trzeba instalować. Ambientika MQTT Bridge pozostaje drugim rodzajem połączenia; istniejące instalacje działają bez zmian.",
+                "uk": "Адаптер читає пристрої безпосередньо з хмари Ambientika: вхід з адресою електронної пошти та паролем застосунку Ambientika, більше нічого встановлювати не потрібно. Ambientika MQTT Bridge залишається другим типом підключення; наявні інсталяції працюють без змін.",
+                "zh-cn": "适配器直接从 Ambientika 云读取设备：使用 Ambientika 应用的电子邮件地址和密码登录，无需安装其他组件。Ambientika MQTT Bridge 仍可作为第二种连接方式使用；现有安装保持不变。"
+            }
+        },
+        "titleLang": {
+            "en": "Ambientika ventilation",
+            "de": "Ambientika Lüftung",
+            "ru": "Вентиляция Ambientika",
+            "pt": "Ventilação Ambientika",
+            "nl": "Ambientika ventilatie",
+            "fr": "Ventilation Ambientika",
+            "it": "Ambientika ventilazione",
+            "es": "Ventilación Ambientika",
+            "pl": "Wentylacja Ambientika",
+            "uk": "Вентиляція Ambientika",
+            "zh-cn": "Ambientika 通风"
+        },
+        "desc": {
+            "en": "Ambientika ventilation units with heat recovery: read values and control them, with the sign-in of the Ambientika app",
+            "de": "Ambientika Lüftungsgeräte mit Wärmerückgewinnung: Werte lesen und steuern, mit der Anmeldung der Ambientika App",
+            "ru": "Вентиляционные устройства Ambientika с рекуперацией тепла: чтение значений и управление, со входом приложения Ambientika",
+            "pt": "Unidades de ventilação Ambientika com recuperação de calor: ler valores e controlar, com a sessão da app Ambientika",
+            "nl": "Ambientika ventilatie-units met warmteterugwinning: waarden uitlezen en bedienen, met de aanmelding van de Ambientika-app",
+            "fr": "Appareils de ventilation Ambientika avec récupération de chaleur : lire les valeurs et les commander, avec l'identifiant de l'application Ambientika",
+            "it": "Apparecchi di ventilazione Ambientika con recupero di calore: leggere i valori e comandarli, con l'accesso dell'app Ambientika",
+            "es": "Equipos de ventilación Ambientika con recuperación de calor: leer valores y controlarlos, con el inicio de sesión de la app Ambientika",
+            "pl": "Urządzenia wentylacyjne Ambientika z odzyskiem ciepła: odczyt wartości i sterowanie, z logowaniem aplikacji Ambientika",
+            "uk": "Вентиляційні пристрої Ambientika з рекуперацією тепла: читання значень і керування, зі входом застосунку Ambientika",
+            "zh-cn": "带热回收的 Ambientika 通风设备：使用 Ambientika 应用的登录信息读取数值并进行控制"
+        },
+        "authors": [
+            "Südwind GmbH <info@ambientika.eu>"
+        ],
+        "keywords": [
+            "ambientika",
+            "ventilation",
+            "heat recovery",
+            "suedwind",
+            "climate"
+        ],
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
+        "platform": "Javascript/Node.js",
+        "icon": "ambientika.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/ambientika-eu/ioBroker.ambientika/main/admin/ambientika.png",
+        "readme": "https://github.com/ambientika-eu/ioBroker.ambientika/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "climate-control",
+        "compact": true,
+        "connectionType": "cloud",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "json"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=6.0.11"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.6.17"
+            }
+        ]
+    },
+    "native": {
+        "connection": "cloud",
+        "username": "",
+        "password": "",
+        "pollInterval": 30,
+        "cloudHost": "",
+        "mqttHost": "localhost",
+        "mqttPort": 1883,
+        "mqttUser": "",
+        "mqttPassword": "",
+        "mqttTls": false,
+        "mqttTlsInsecure": false,
+        "mqttPrefix": "ambientika",
+        "discoveryPrefix": "homeassistant"
+    },
+    "protectedNative": [
+        "password",
+        "mqttPassword"
+    ],
+    "encryptedNative": [
+        "password",
+        "mqttPassword"
+    ],
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Connected to the Ambientika cloud or the MQTT broker",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}
