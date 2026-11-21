@@ -82,6 +82,7 @@ describe('connection type cloud', () => {
         assert.strictEqual(cloud.counts.auth, 1);
         assert.deepStrictEqual(cloud.log.filter(l => l.kind === 'UNEXPECTED' || l.kind === 'unauthorized'), []);
         assert.strictEqual(a.logged('warn', /./).length + a.logged('error', /./).length, 0);
+        assert.strictEqual(a.logged('info', /were removed/).length, 0);
     });
 
     it('follows the values of the units, also steps the unit chooses itself and unknown values', async () => {
@@ -436,6 +437,34 @@ describe('connection type cloud', () => {
         cloud.outage('ok');
         await waitFor(allOnline);
         assert.strictEqual(a.logged('info', /Unit .* added/).length, 0);
+    });
+
+    it('removes the states only the MQTT Bridge fills when an instance changes to the cloud', async () => {
+        const st = (name, type) => ({ type: 'state', common: { name, type }, native: {} });
+        const existing = {
+            'info.bridge': st('bridge', 'boolean'),
+            neuracell: { type: 'device', common: { name: 'NeuraCell-X' }, native: {} },
+            'neuracell.radon': st('Radon', 'number'),
+            [FLUR]: { type: 'device', common: { name: 'Flur' }, native: { serial: FLUR } },
+            [`${FLUR}.temperature`]: st('Temperature', 'number'),
+            [`${FLUR}.humidity_avg`]: st('Humidity (averaged)', 'number'),
+            [`${FLUR}.operating_mode_raw`]: st('Mode raw', 'string'),
+            [`${FLUR}.reset_state`]: st('Filter reset status', 'string'),
+            [`${FLUR}.diagnostics`]: { type: 'channel', common: { name: 'Diagnostics' }, native: {} },
+            [`${FLUR}.diagnostics.last_status`]: st('Last status packet', 'string'),
+            [`${FLUR}.my_own_state`]: st('added by the user', 'string'),
+        };
+        await start({}, existing);
+        await waitFor(allOnline);
+        for (const id of ['info.bridge', 'neuracell', 'neuracell.radon', `${FLUR}.humidity_avg`, `${FLUR}.operating_mode_raw`, `${FLUR}.reset_state`, `${FLUR}.diagnostics`, `${FLUR}.diagnostics.last_status`]) {
+            assert.ok(!a.objects.has(id), `${id} is still there`);
+        }
+        assert.ok(a.objects.has(`${FLUR}.temperature`));
+        assert.ok(a.objects.has(`${FLUR}.my_own_state`), 'a state of the user stays');
+        assert.strictEqual(a.objects.get(FLUR).native.serial, FLUR);
+        assert.strictEqual(a.val(`${FLUR}.temperature`), 21);
+        assert.strictEqual(a.logged('info', /states only the bridge fills .* were removed/).length, 1);
+        assert.strictEqual(a.logged('info', /Unit A0B1C2D3E402 .*added/).length, 0);
     });
 
     it('stops at once, also while a request is under way, and writes nothing afterwards', async () => {

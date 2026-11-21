@@ -58,6 +58,15 @@ function createAdapter(config, existing) {
         obj.native = Object.assign({}, obj.native, part.native || {});
         a.objects.set(id, obj);
     };
+    a.getObjectAsync = async id => a.objects.get(id) || null;
+    a.delObjectAsync = async (id, options) => {
+        for (const key of [...a.objects.keys()]) {
+            if (key === id || (options && options.recursive && key.startsWith(`${id}.`))) {
+                a.objects.delete(key);
+                a.states.delete(key);
+            }
+        }
+    };
     a.getDevicesAsync = async () => [...a.objects.entries()].filter(([, o]) => o.type === 'device').map(([id, o]) => Object.assign({ _id: `${a.namespace}.${id}` }, o));
     // what a user or a script does: write a state without ack
     a.userWrite = async (id, val) => {

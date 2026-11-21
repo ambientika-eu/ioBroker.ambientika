@@ -28,15 +28,6 @@ internet access.
 In ioBroker Admin open **Adapters**, search for **Ambientika** and install it. Then open the settings of the new
 instance `ambientika.0`.
 
-As long as the adapter is not listed there yet, install it from npm: **Adapters**, switch on the expert mode, choose
-**Install from custom URL** (the GitHub icon), tab **npm**, enter `iobroker.ambientika` and install. Or on the
-command line of the ioBroker host:
-
-```bash
-iobroker url iobroker.ambientika
-iobroker add ambientika
-```
-
 ## Configuration
 
 | Setting | Default | Description |
@@ -106,10 +97,11 @@ The state ids are the same for both connection types.
 
 ### Updating from 1.x
 
-Install version 2 as described under [Installation](#installation). An instance that was set up with version 1.x
+An instance that was set up with version 1.x
 keeps reading the MQTT Bridge; nothing has to be changed. To read the units directly, choose the connection type
 **Ambientika cloud** in the settings of the instance and enter the sign-in data of the app. Units, their ids and your
-scripts stay as they are; the bridge is not needed for the adapter any more.
+scripts stay as they are; the bridge is not needed for the adapter any more. The states that only the bridge fills
+(averaged readings, `diagnostics`, `neuracell`, `info.bridge`) are removed at that change.
 
 ## Troubleshooting
 
@@ -135,7 +127,7 @@ Support: info@ambientika.eu, or an [issue](https://github.com/ambientika-eu/ioBr
 - (Südwind GmbH) The adapter reads the units directly from the Ambientika cloud: sign in with the e-mail address and password of the Ambientika app, nothing else to install.
 - (Südwind GmbH) The Ambientika MQTT Bridge remains available as a second connection type. Existing installations keep running unchanged.
 - (Südwind GmbH) The adapter has its own repository and package: `ambientika-eu/ioBroker.ambientika`, `iobroker.ambientika` on npm.
-- (Südwind GmbH) Settings page in eleven languages. Requires Node.js 20, js-controller 6.0.11 and Admin 7.6.17 or newer.
+- (Südwind GmbH) Settings page in eleven languages. Requires Node.js 22, js-controller 6.0.11 and Admin 7.6.20 or newer.
 
 ### 1.6.35 (2026-11-17)
 - (Südwind GmbH) Last version that needed the Ambientika MQTT Bridge, published in the repository of the bridge.

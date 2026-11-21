@@ -59,7 +59,7 @@ tests.integration(path.join(__dirname, '..'), {
 
             before(async function () {
                 this.timeout(30000);
-                aedes = require('aedes')();
+                aedes = await require('aedes').Aedes.createBroker();
                 server = net.createServer(aedes.handle);
                 await new Promise(r => server.listen(0, '127.0.0.1', r));
                 port = server.address().port;
@@ -161,7 +161,7 @@ tests.integration(path.join(__dirname, '..'), {
 
             before(async function () {
                 this.timeout(30000);
-                aedes = require('aedes')();
+                aedes = await require('aedes').Aedes.createBroker();
                 server = net.createServer(aedes.handle);
                 await new Promise(r => server.listen(0, '127.0.0.1', r));
                 port = server.address().port;

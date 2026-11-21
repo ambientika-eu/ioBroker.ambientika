@@ -45,7 +45,7 @@ function fresh() {
     return { units, tokenNo: 1, outage: 'ok', log: [], counts: {} };
 }
 
-async function startFakeCloud() {
+async function startFakeCloud(listenPort = 0) {
     let S = fresh();
     const hanging = new Set();
 
@@ -164,7 +164,7 @@ async function startFakeCloud() {
             return send(res, 404, 'not part of the API');
         });
     });
-    await new Promise(r => server.listen(0, '127.0.0.1', r));
+    await new Promise(r => server.listen(listenPort, "127.0.0.1", r));
     const port = server.address().port;
 
     return {
