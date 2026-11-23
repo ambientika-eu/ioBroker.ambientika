@@ -1,6 +1,6 @@
 {
   "name": "iobroker.ambientika",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "ioBroker adapter for Ambientika ventilation units with heat recovery",
   "author": {
     "name": "Südwind GmbH",

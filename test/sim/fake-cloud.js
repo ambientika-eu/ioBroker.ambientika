@@ -33,7 +33,7 @@ function fresh() {
     const units = new Map();
     for (const [serial, name, role, zone] of UNITS) {
         units.set(serial, {
-            name, role, zone, fault: null,
+            name, role, zone, fault: null, lagMs: 0, ignores: false,
             status: {
                 operatingMode: 'Smart', fanSpeed: 'Medium', humidityLevel: 'Normal', lightSensorLevel: 'Low',
                 temperature: 21, humidity: 55, airQuality: 'Good', humidityAlarm: false, filtersStatus: 'Good',
@@ -140,14 +140,19 @@ async function startFakeCloud(listenPort = 0) {
                     && (!('lightSensorLevel' in b) || int(b.lightSensorLevel, 3));
                 log('change-mode', { serial: b.deviceSerialNumber, body: b, ok });
                 if (!ok) return send(res, 500, { message: 'Value was either too large or too small for an unsigned byte' });
-                if (u.fault) return send(res, 200); // accepted for a silent unit; it just never lands
-                const st = u.status;
-                const old = st.operatingMode;
-                st.operatingMode = MODES[Number(b.operatingMode)];
-                if (st.operatingMode !== old) st.lastOperatingMode = old;
-                st.fanSpeed = FANS[b.fanSpeed];
-                st.humidityLevel = HUMS[b.humidityLevel];
-                if ('lightSensorLevel' in b) st.lightSensorLevel = LIGHTS[b.lightSensorLevel];
+                if (u.fault || u.ignores) return send(res, 200); // accepted; it just never lands
+                const apply = () => {
+                    const st = u.status;
+                    const old = st.operatingMode;
+                    st.operatingMode = MODES[Number(b.operatingMode)];
+                    if (st.operatingMode !== old) st.lastOperatingMode = old;
+                    st.fanSpeed = FANS[b.fanSpeed];
+                    st.humidityLevel = HUMS[b.humidityLevel];
+                    if ('lightSensorLevel' in b) st.lightSensorLevel = LIGHTS[b.lightSensorLevel];
+                };
+                // a real unit reports a command some time after the cloud took it
+                if (u.lagMs) setTimeout(apply, u.lagMs).unref();
+                else apply();
                 return send(res, 200);
             }
             if (route === 'GET /device/reset-filter') {
@@ -192,6 +197,14 @@ async function startFakeCloud(listenPort = 0) {
         fault(serial, fault) {
             S.units.get(serial).fault = fault;
             if (!fault) this.release();
+        },
+        /** the unit reports a command that many milliseconds after the cloud took it */
+        lag(serial, ms) {
+            S.units.get(serial).lagMs = ms;
+        },
+        /** the cloud takes commands for the unit, the unit never carries them out */
+        ignore(serial, on = true) {
+            S.units.get(serial).ignores = on;
         },
         rename(serial, name) {
             S.units.get(serial).name = name;

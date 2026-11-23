@@ -8,7 +8,7 @@ const { AmbientikaCloud, CloudError, cleanHost } = require('../../lib/cloud');
 const { fromCloudStatus } = require('../../lib/states');
 
 // Short times, so that outages and retries can be watched in seconds.
-Object.assign(TIMING, { pollMinS: 0.15, unitsIntervalS: 0.6, retryFirstS: 0.3, retryMaxS: 0.6, retryRejectedS: 0.8, afterCommandS: 0.3, requestS: 0.5 });
+Object.assign(TIMING, { pollMinS: 0.15, unitsIntervalS: 0.6, retryFirstS: 0.3, retryMaxS: 0.6, retryRejectedS: 0.8, afterCommandS: 0.3, confirmS: 1.5, confirmEveryS: 0.3, requestS: 0.5 });
 
 const FLUR = 'A0B1C2D3E402'; // Master zone 0
 const WOHN = 'A0B1C2D3E401'; // Slave zone 0
@@ -144,6 +144,8 @@ describe('connection type cloud', () => {
     });
 
     it('never sends Night or Turbo: the nearest step when asked for, the last own step otherwise', async () => {
+        cloud.set(FLUR, { operatingMode: 'ManualHeatRecovery' });
+        cloud.set(ELTERN, { operatingMode: 'ManualHeatRecovery' });
         await start();
         await waitFor(allOnline);
         cloud.clear();
@@ -161,8 +163,101 @@ describe('connection type cloud', () => {
         await waitFor(() => a.val(`${ELTERN}.fan_speed`) === 'Night');
         cloud.clear();
         await a.userWrite(`${ELTERN}.humidity_level`, 'Moist');
-        assert.deepStrictEqual(changes()[0].body, { deviceSerialNumber: ELTERN, operatingMode: '0', fanSpeed: 2, humidityLevel: 2, lightSensorLevel: 2 });
+        assert.deepStrictEqual(changes()[0].body, { deviceSerialNumber: ELTERN, operatingMode: '2', fanSpeed: 2, humidityLevel: 2, lightSensorLevel: 2 });
         assert.ok(changes().every(c => c.ok));
+    });
+
+    it('shows what was sent until the unit reports it, and keeps the readings coming meanwhile', async () => {
+        cloud.set(FLUR, { operatingMode: 'ManualHeatRecovery' });
+        await start({ pollInterval: 30 }); // the readings after the command come without the regular ones
+        await waitFor(allOnline);
+        cloud.lag(FLUR, 1000);
+        cloud.clear();
+        await a.userWrite(`${FLUR}.fan_speed`, 'High');
+        assert.deepStrictEqual(a.states.get(`${FLUR}.fan_speed`), { val: 'High', ack: true });
+        cloud.set(FLUR, { temperature: 23.5 });
+        const seen = new Set();
+        const end = Date.now() + 1400;
+        while (Date.now() < end) {
+            seen.add(a.val(`${FLUR}.fan_speed`));
+            await wait(20);
+        }
+        assert.deepStrictEqual([...seen], ['High'], 'the old step is never shown again');
+        assert.strictEqual(a.val(`${FLUR}.fan_speed_num`), 3);
+        assert.strictEqual(a.val(`${FLUR}.temperature`), 23.5);
+        assert.ok(cloud.counts[`status:${FLUR}`] >= 2, 'read again while waiting');
+        assert.strictEqual(cloud.unit(FLUR).status.fanSpeed, 'High');
+        await waitFor(() => !a.source.expected.has(FLUR), 'the unit reported it');
+        const reads = cloud.counts[`status:${FLUR}`];
+        await wait(800);
+        assert.strictEqual(cloud.counts[`status:${FLUR}`], reads, 'no extra readings once the unit reported it');
+        assert.strictEqual(a.logged('warn', /has not taken it over/).length, 0);
+        assert.strictEqual(a.logged('debug', /reports what was sent/).length, 1);
+    });
+
+    it('says so when the unit does not take a command over, and shows its own values again', async () => {
+        await start();
+        await waitFor(allOnline);
+        cloud.ignore(FLUR);
+        await a.userWrite(`${FLUR}.operating_mode`, 'ManualHeatRecovery');
+        await a.userWrite(`${FLUR}.fan_speed`, 'Low');
+        await wait(600);
+        assert.strictEqual(a.val(`${FLUR}.operating_mode`), 'ManualHeatRecovery');
+        assert.strictEqual(a.val(`${FLUR}.last_operating_mode`), 'Smart');
+        assert.strictEqual(a.val(`${FLUR}.fan_speed`), 'Low');
+        await waitFor(() => a.val(`${FLUR}.operating_mode`) === 'Smart', 'own mode again', 3000);
+        assert.deepStrictEqual(a.states.get(`${FLUR}.fan_speed`), { val: 'Medium', ack: true });
+        const warned = a.logged('warn', /has not taken it over/);
+        assert.strictEqual(warned.length, 1);
+        assert.match(warned[0].msg, /Flur \(A0B1C2D3E402\): 1.5 seconds after the command the unit still reports operating mode Smart instead of ManualHeatRecovery, fan speed Medium instead of Low\./);
+        assert.doesNotMatch(warned[0].msg, /Slave/);
+        // a Slave: the log says where to set it
+        cloud.ignore(WOHN);
+        await a.userWrite(`${WOHN}.humidity_level`, 'Dry');
+        await waitFor(() => a.logged('warn', /has not taken it over/).length === 2, 'second warning', 3000);
+        assert.match(a.logged('warn', /has not taken it over/)[1].msg, /humidity level Normal instead of Dry\. .*This unit is a Slave/);
+        assert.strictEqual(a.val(`${WOHN}.humidity_level`), 'Normal');
+    });
+
+    it('says that the unit chooses the fan speed itself in Smart and Auto, and shows its own step', async () => {
+        cloud.set(FLUR, { operatingMode: 'Auto' });
+        await start();
+        await waitFor(allOnline);
+        cloud.ignore(FLUR); // in Auto the unit keeps its step
+        cloud.clear();
+        await a.userWrite(`${FLUR}.fan_speed`, 'High');
+        assert.strictEqual(changes().length, 1);
+        assert.deepStrictEqual(a.states.get(`${FLUR}.fan_speed`), { val: 'Medium', ack: true });
+        assert.strictEqual(a.logged('info', /Flur \(A0B1C2D3E402\): in the operating mode Auto the unit chooses the fan speed itself/).length, 1);
+        assert.ok(!a.source.expected.has(FLUR));
+        // a step that was waiting for the unit does not count once the mode is one where the unit chooses
+        cloud.ignore(FLUR, false);
+        cloud.set(FLUR, { operatingMode: 'ManualHeatRecovery' });
+        await waitFor(() => a.val(`${FLUR}.operating_mode`) === 'ManualHeatRecovery');
+        cloud.ignore(FLUR);
+        await a.userWrite(`${FLUR}.fan_speed`, 'Low');
+        await a.userWrite(`${FLUR}.operating_mode`, 'Smart');
+        assert.deepStrictEqual(a.source.expected.get(FLUR).settings, { operatingMode: 'Smart' });
+        await wait(2200);
+        assert.strictEqual(a.logged('warn', /fan speed/).length, 0);
+    });
+
+    it('shows the value of the unit again when a read-only state is written by hand, and says which one sets it', async () => {
+        await start();
+        await waitFor(allOnline);
+        cloud.clear();
+        await a.userWrite(`${FLUR}.fan_speed_num`, 4);
+        assert.deepStrictEqual(a.states.get(`${FLUR}.fan_speed_num`), { val: 2, ack: true });
+        await a.userWrite(`${FLUR}.fan_speed_num`, 3);
+        await a.userWrite(`${WOHN}.fan_speed_num`, 1);
+        assert.deepStrictEqual(a.states.get(`${WOHN}.fan_speed_num`), { val: 2, ack: true });
+        await a.userWrite(`${FLUR}.operating_mode_num`, 2);
+        assert.deepStrictEqual(a.states.get(`${FLUR}.operating_mode_num`), { val: 0, ack: true });
+        assert.strictEqual(changes().length, 0);
+        const said = a.logged('info', /only shows a value of the unit/);
+        assert.strictEqual(said.length, 2, 'once per state');
+        assert.strictEqual(said[0].msg, 'fan_speed_num only shows a value of the unit and cannot be set; to change it, write fan_speed (Low, Medium, High)');
+        assert.match(said[1].msg, /^operating_mode_num .* write operating_mode \(Smart, Auto, /);
     });
 
     it('keeps the light sensor level of a unit that is switched off and on again', async () => {

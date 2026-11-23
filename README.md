@@ -49,7 +49,7 @@ are tied to the serial number: a unit can be renamed in the app without a state 
 | State | Values | Description |
 | --- | --- | --- |
 | `operating_mode` | Smart, Auto, ManualHeatRecovery, Night, AwayHome, Surveillance, TimedExpulsion, Expulsion, Intake, MasterSlaveFlow, SlaveMasterFlow, Off | Operating mode. For coupled units set the mode at the Master of the zone; a Slave runs with its Master. |
-| `fan_speed` | Low, Medium, High (Night, Turbo) | Fan speed. Night and Turbo are steps the unit chooses itself (for example in Smart mode). They are shown; when one of them is written (a scene that restores what it saw), the adapter sets the nearest step instead: Low for Night, High for Turbo. |
+| `fan_speed` | Low, Medium, High (Night, Turbo) | Fan speed. Night and Turbo are steps the unit chooses itself (for example in Smart mode). They are shown; when one of them is written (a scene that restores what it saw), the adapter sets the nearest step instead: Low for Night, High for Turbo. In the operating modes Smart, Auto, Night, AwayHome, Surveillance and Off the unit chooses the step itself; a step of your own takes effect in a manual mode such as ManualHeatRecovery. |
 | `humidity_level` | Dry, Normal, Moist | Humidity setting |
 | `light_sensor_level` | Off, Low, Medium (NotAvailable) | Sensitivity of the twilight sensor |
 | `reset_filter` | button | Resets the filter counter after a filter change (write `true`). The cloud clears the counter of a Master; a coupled Slave keeps its own until it is reset at the unit. |
@@ -57,6 +57,11 @@ are tied to the serial number: a unit can be renamed in the app without a state 
 Write a value without `ack`, as scripts and visualisations do. The adapter sends it to the unit and confirms the
 state with `ack: true`. A value that is not in the list is not sent; the log of the instance says which values are
 allowed.
+
+The Ambientika cloud takes a command at once; the unit reports it a little later. Until then the state keeps the
+value that was sent, for at most two minutes, while temperature, humidity and the other readings keep coming. When
+the unit has not taken the command over by then, the state shows the value of the unit again and the log says
+which setting it did not take. On the log level `debug` every command appears as `Sent to …`.
 
 ### Read only
 
@@ -70,13 +75,15 @@ allowed.
 | `last_operating_mode` | The mode before the current one |
 | `device_role`, `zone_index` | Master or Slave role and zone |
 | `online` | The cloud has a current status of the unit. After three readings without one it turns `false`; the other states keep their last values. |
-| `*_num` | Numeric companion values for charts: `operating_mode_num` 0 to 11 in the order above, `fan_speed_num` 1 Low to 5 Turbo, `humidity_level_num` 0 to 2, `light_sensor_level_num` 0 to 3, `air_quality_num` 4 very good to 0 bad, `filter_status_num` 0 good to 2 bad |
+| `*_num` | Numeric companion values for charts: `operating_mode_num` 0 to 11 in the order above, `fan_speed_num` 1 Low to 5 Turbo, `humidity_level_num` 0 to 2, `light_sensor_level_num` 0 to 3, `air_quality_num` 4 very good to 0 bad, `filter_status_num` 0 good to 2 bad. They are only shown: to change a setting, write the state without `_num`, for example `fan_speed`. |
 
 ## Example: ventilate the bathroom after a shower
 
 ```javascript
 on({ id: 'ambientika.0.A0B1C2D3E401.humidity', change: 'ne' }, obj => {
     if (obj.state.val > 75) {
+        // a step of your own needs a manual mode; in Smart and Auto the unit chooses it
+        setState('ambientika.0.A0B1C2D3E401.operating_mode', 'ManualHeatRecovery');
         setState('ambientika.0.A0B1C2D3E401.fan_speed', 'High');
     }
 });
@@ -123,6 +130,12 @@ Support: info@ambientika.eu, or an [issue](https://github.com/ambientika-eu/ioBr
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 2.0.1 (2026-11-23)
+- (Südwind GmbH) After a command the state keeps the value that was sent until the unit reports it, at most two minutes. Before, it showed the old value again after a few seconds, because the unit reports a command later than the cloud takes it.
+- (Südwind GmbH) A command the unit does not take over within two minutes is named in the log.
+- (Südwind GmbH) A fan speed written in Smart, Auto or another mode in which the unit chooses the step itself: the log says so and the state shows the step of the unit.
+- (Südwind GmbH) A read-only state written by hand (for example `fan_speed_num`) shows the value of the unit again at once; the log says which state sets it.
+
 ### 2.0.0 (2026-11-21)
 - (Südwind GmbH) The adapter reads the units directly from the Ambientika cloud: sign in with the e-mail address and password of the Ambientika app, nothing else to install.
 - (Südwind GmbH) The Ambientika MQTT Bridge remains available as a second connection type. Existing installations keep running unchanged.
